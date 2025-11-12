@@ -1,48 +1,46 @@
 """
-Database Schemas
+Database Schemas for The Sanctuary of Nature
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model represents a MongoDB collection.
+Collection name is the lowercase of the class name.
 """
-
+from typing import Optional, List
 from pydantic import BaseModel, Field
-from typing import Optional
 
-# Example schemas (replace with your own):
+class Host(BaseModel):
+    name: str = Field(..., description="Host or facilitator name")
+    bio: Optional[str] = Field(None, description="Short bio")
+    specialties: List[str] = Field(default_factory=list, description="Modalities: meditation, breathwork, yoga, sound, etc.")
+    website: Optional[str] = None
+    location: Optional[str] = Field(None, description="Primary base location of the host")
 
-class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+class Location(BaseModel):
+    title: str = Field(..., description="Sanctuary name or place title")
+    region: str = Field(..., description="Country/Region")
+    nature_type: str = Field(..., description="desert | forest | mountain | ocean | jungle | mixed")
+    description: Optional[str] = None
+    image_url: Optional[str] = None
 
-class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
+class Retreat(BaseModel):
+    title: str
+    description: Optional[str] = None
+    host_name: str = Field(..., description="Name of the host facilitating")
+    location_title: str = Field(..., description="Name of the location/sanctuary")
+    nature_type: str = Field(..., description="desert | forest | mountain | ocean | jungle | mixed")
+    focus: List[str] = Field(default_factory=list, description="e.g., meditation, detox, silence, ayurvedic, eco-building")
+    duration_days: int = Field(..., ge=1, le=60)
+    price_usd: float = Field(..., ge=0)
+    start_date: Optional[str] = Field(None, description="ISO date string")
+    image_url: Optional[str] = None
 
-# Add your own schemas here:
-# --------------------------------------------------
+class Message(BaseModel):
+    author: str = Field(..., description="Name or nickname")
+    content: str = Field(..., description="Community message")
+    topic: Optional[str] = Field(None, description="general | requests | offerings | rideshare | Q&A")
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Preference(BaseModel):
+    energy: Optional[str] = Field(None, description="calm | transformative | adventurous | restorative")
+    preferred_nature: Optional[str] = Field(None, description="desert | forest | mountain | ocean | jungle | mixed")
+    budget: Optional[float] = Field(None, description="Approx budget in USD")
+    duration: Optional[int] = Field(None, description="Preferred days")
+    goals: Optional[str] = Field(None, description="Free text: meditate deeper, release stress, connect to nature...")
